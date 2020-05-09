@@ -1,0 +1,6 @@
+framework module Pods_Lupus {
+  umbrella header "Pods-Lupus-umbrella.h"
+
+  export *
+  module * { export * }
+}

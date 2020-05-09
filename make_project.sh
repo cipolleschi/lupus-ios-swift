@@ -1,0 +1,1 @@
+xcodegen && pod install && open Lupus.xcworkspace
