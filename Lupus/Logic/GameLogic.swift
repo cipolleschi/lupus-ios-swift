@@ -8,6 +8,7 @@
 import Foundation
 import Katana
 import Hydra
+import Katana
 import Tempura
 
 enum GameLogic {
@@ -50,22 +51,53 @@ enum GameLogic {
     func sideEffect(_ context: AppSideEffectContext) throws {
       let state = context.getState()
 
-      guard
+      if
         let roomCode = state.currentGame?.roomCode,
         let playerName = state.currentPlayerUsername
-      else {
-        return
+      {
+        try await(context.dependencies.firebaseManager.leaveGame(with: roomCode.lowercased(), playerName: playerName))
       }
 
-      try await(context.dependencies.firebaseManager.leaveGame(with: roomCode.lowercased(), playerName: playerName))
-      try await(context.dispatch(Hide(Screen.createGame, animated: true)))
+      try await(context.dispatch(Hide(Screen.joinGame, animated: true)))
+      try await(context.dispatch(UpdateCurrentPlayerData(name: nil)))
+    }
+  }
+
+  struct GameDestroyed: AppSideEffect, StateObserverDispatchable {
+    init?(prevState: State, currentState: State) {}
+
+    func sideEffect(_ context: AppSideEffectContext) throws {
+      let alertContext = SharedLogic.AlertContext(
+        title: "Game canceled",
+        message: "The game you were trying to join has been cancelled",
+        actions: [
+          UIAlertAction(title: "Ok", style: .default, handler: { action in
+            DispatchQueue.global().async {
+              try? await(context.dispatch(LeaveGame()))
+              context.dependencies.firebaseManager.unsubscribe()
+            }
+          })
+      ])
+      try await(context.dispatch(SharedLogic.PresentAlert(alertContext: alertContext)))
     }
   }
 
   struct UpdateCurrentPlayerData: AppStateUpdater {
-    let name: String
+    let name: String?
     func updateState(_ state: inout AppState) {
       state.currentPlayerUsername = name
     }
+  }
+}
+
+extension GameLogic {
+  static var gameDeletedObserver: Katana.ObserverInterceptor.ObserverType.StateChangeObserver {
+    return ObserverInterceptor.ObserverType.typedStateChange { (prevState: AppState, currState: AppState) in
+      let prevGame = prevState.currentGame
+      let currGame = currState.currentGame
+
+      return prevGame != nil && currGame == nil
+    }
+
   }
 }

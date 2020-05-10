@@ -12,6 +12,7 @@ enum Screen: String {
   case startMenu
   case createGame
   case joinGame
+  case alert
 }
 
 extension StartMenuNC: RoutableWithConfiguration {
@@ -24,6 +25,15 @@ extension StartMenuNC: RoutableWithConfiguration {
       }),
       .show(Screen.joinGame): .push({ context in
         return JoinGameVC(store: self.store, connected: true)
+      }),
+      .show(Screen.alert): .custom({ (id, from, animated, ctx, completion) in
+        guard let context = ctx as? SharedLogic.AlertContext else {
+          fatalError("Wrong context passed")
+        }
+
+        let vc = UIAlertController(title: context.title, message: context.message, preferredStyle: .alert)
+        context.actions.forEach { vc.addAction($0) }
+        self.present(vc, animated: animated, completion: completion)
       })
     ]
   }
@@ -44,7 +54,7 @@ extension JoinGameVC: RoutableWithConfiguration {
 
   var navigationConfiguration: [NavigationRequest : NavigationInstruction] {
     return [
-      .hide(Screen.createGame): .pop
+      .hide(Screen.joinGame): .pop
     ]
   }
 }

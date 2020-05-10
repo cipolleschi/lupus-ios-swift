@@ -30,6 +30,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       ObserverInterceptor.observe([
         .onNotification(UIResponder.keyboardWillShowNotification, [KeyboardLogic.KeyboardWillShow.self]),
         .onNotification(UIResponder.keyboardWillHideNotification, [KeyboardLogic.KeyboardWillHide.self]),
+        .onStateChange(GameLogic.gameDeletedObserver, [
+          GameLogic.GameDestroyed.self
+        ])
       ])
     ])
 

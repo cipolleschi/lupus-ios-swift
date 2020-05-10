@@ -182,6 +182,10 @@ class FirebaseManager {
     }
   }
 
+  func unsubscribe() {
+    self.snapshotListener?.remove()
+  }
+  
   func subscribeToGame(roomCode: String) {
     self.snapshotListener = self.firestoreDB.collection(Models.Game.collectionName)
       .whereField("room_code", isEqualTo: roomCode).addSnapshotListener { snapshot, error in
@@ -194,7 +198,7 @@ class FirebaseManager {
           let data = snapshot?.documents.first?.data(),
           let game = try? Models.Game(jsonInfo: data)
         else {
-          print("update with no data???")
+          _ = self.dispatch(GameDataReceived(game: nil))
           return
         }
 
@@ -223,7 +227,7 @@ class FirebaseManager {
 
 
 struct GameDataReceived: AppSideEffect {
-  let game: Models.Game
+  let game: Models.Game?
 
   func sideEffect(_ context: AppSideEffectContext) throws {
     try await(context.dispatch(UpdateCurrentGame(game: self.game)))
@@ -231,7 +235,7 @@ struct GameDataReceived: AppSideEffect {
 }
 
 struct UpdateCurrentGame: AppStateUpdater {
-  let game: Models.Game
+  let game: Models.Game?
   
   func updateState(_ state: inout AppState) {
     state.currentGame = self.game
