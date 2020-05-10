@@ -27,19 +27,5 @@ NavigationProvider {
 
     FirebaseApp.configure()
     self.firebaseManager.start(firestoreDB: Firestore.firestore(), dispatch: dispatch)
-
-    dispatch(JoinGame(roomCode: "t3fi", playerName: "FEC")).void
-  }
-}
-
-struct JoinGame: AppSideEffect {
-  let roomCode: String
-  let playerName: String
-
-  func sideEffect(_ context: SideEffectContext<AppState, AppDependencies>) throws {
-    try await(context.dependencies.firebaseManager.joinGame(with: roomCode, playerName: playerName))
-    let games2 = try await(context.dependencies.firebaseManager.getAllGames())
-    print(games2)
-    context.dependencies.firebaseManager.subscribeToGame(roomCode: roomCode)
   }
 }

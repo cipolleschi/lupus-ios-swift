@@ -14,12 +14,20 @@ class JoinGameVC: ViewController<JoinGameView> {
     super.viewDidLoad()
   }
 
+  override func viewWillDisappear(_ animated: Bool) {
+    super.viewWillDisappear(animated)
+
+    if self.isMovingFromParent {
+      self.dispatch(GameLogic.LeaveGame())
+    }
+  }
+
   override func setupInteraction() {
     self.rootView.userDidTapJoinButton = { roomCode, playerName in
       guard let rc = roomCode, let pn = playerName else {
         return
       }
-      self.dispatch(JoinGame(roomCode: rc, playerName: pn))
+      self.dispatch(GameLogic.JoinGame(roomCode: rc, playerName: pn))
     }
   }
 }

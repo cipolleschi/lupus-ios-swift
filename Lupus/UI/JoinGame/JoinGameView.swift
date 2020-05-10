@@ -42,6 +42,8 @@ class JoinGameView: UIView, ViewControllerModellableView {
 
     roomCodeText.becomeFirstResponder()
     roomCodeText.placeholder = "room code..."
+    roomCodeText.autocorrectionType = .no
+    roomCodeText.autocapitalizationType = .none
     playerNameText.placeholder = "your name..."
 
     self.joinButton.addTarget(self, action: #selector(self.joinButtonTapped(_:)), for: .touchUpInside)

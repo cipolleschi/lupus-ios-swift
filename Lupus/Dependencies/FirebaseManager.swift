@@ -15,12 +15,15 @@ class FirebaseManager {
     case noCollectionFound
     case impossibleToCreateRoom
     case gameNotFound
+    case documentNotFound
     case playerExists
+    case playerNotExists
   }
 
   private var firestoreDB: Firestore!
   private var dispatch: PromisableStoreDispatch!
   private let availableSymbols = "abcdefghijklmnopqrstuvwxyz0123456789"
+  private var snapshotListener: ListenerRegistration?
 
   init() {}
 
@@ -116,8 +119,71 @@ class FirebaseManager {
     }
   }
 
+  func leaveGame(with roomCode: String, playerName: String) throws -> Promise<Void> {
+    return Promise<Void>(in: .background) { resolve, reject, _ in
+      self.firestoreDB.collection(Models.Game.collectionName)
+      .whereField("room_code", isEqualTo: roomCode).getDocuments { snapshot, error in
+        if let err = error {
+          reject(err)
+          return
+        }
+
+        guard
+          let content = snapshot,
+          content.documents.count == 1,
+          let docId = content.documents.first?.documentID,
+          let gameData = content.documents.first?.data(),
+          var game = try? Models.Game(jsonInfo: gameData)
+        else {
+          reject(Error.gameNotFound)
+          return
+        }
+        guard game.players.contains(playerName) else {
+          reject(Error.playerNotExists)
+          return
+        }
+
+        game.players.removeAll { $0 == playerName }
+        self.firestoreDB.collection(Models.Game.collectionName)
+          .document(docId).setData(try! game.jsonInfo(), merge: true) { error in
+            if let err = error {
+              reject(err)
+              return
+            }
+            self.snapshotListener?.remove()
+            resolve(())
+        }
+      }
+    }
+  }
+
+  func removeGame(with roomCode: String) throws -> Promise<Void> {
+    return Promise<Void>(in: .background) { resolve, reject, _ in
+      self.firestoreDB.collection(Models.Game.collectionName)
+        .whereField("room_code", isEqualTo: roomCode).getDocuments { snapshot, error in
+          if let err = error {
+            reject(err)
+            return
+          }
+
+          guard
+            let content = snapshot,
+            content.documents.count == 1,
+            let docId = content.documents.first?.documentID
+          else {
+            reject(Error.documentNotFound)
+            return
+          }
+
+          self.firestoreDB.collection(Models.Game.collectionName).document(docId).delete()
+          self.snapshotListener?.remove()
+          resolve(())
+      }
+    }
+  }
+
   func subscribeToGame(roomCode: String) {
-    self.firestoreDB.collection(Models.Game.collectionName)
+    self.snapshotListener = self.firestoreDB.collection(Models.Game.collectionName)
       .whereField("room_code", isEqualTo: roomCode).addSnapshotListener { snapshot, error in
         if let err = error {
           print("Error with an update: \(err)")

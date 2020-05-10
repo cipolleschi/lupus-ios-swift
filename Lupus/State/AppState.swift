@@ -10,6 +10,7 @@ import Katana
 
 struct AppState: State {
   var currentGame: Models.Game?
+  var currentPlayerUsername: String?
 
   var keyboardState: KeyboardState = KeyboardState()
 }
