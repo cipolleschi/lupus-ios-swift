@@ -7,7 +7,7 @@
 
 import Foundation
 
-class GameEnginge {
+class GameEngine {
 
   enum Error: Swift.Error {
     case notEnoughPlayer

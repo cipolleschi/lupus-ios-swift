@@ -18,13 +18,14 @@ NavigationProvider {
   let getState: GetState
   let navigator: Navigator
   let firebaseManager: FirebaseManager
+  let gameEngine: GameEngine
 
   required init(dispatch: @escaping PromisableStoreDispatch, getState: @escaping GetState) {
     self.dispatch = dispatch
     self.getState = getState
     self.navigator = Navigator()
     self.firebaseManager = FirebaseManager()
-
+    self.gameEngine = GameEngine()
     FirebaseApp.configure()
     self.firebaseManager.start(firestoreDB: Firestore.firestore(), dispatch: dispatch)
   }

@@ -67,7 +67,7 @@ class FirebaseManager {
     return Promise<String>(in: .background) { resolve, reject, _ in
       do {
         let code = try self.createRoomCode(games: games)
-        let game = Models.Game(roomCode: code, players: [])
+        let game = Models.Game(roomCode: code, players: [], roleAssignment: [:])
         self.firestoreDB.collection(Models.Game.collectionName)
           .addDocument(data: try game.jsonInfo()) { error in
           if let err = error {
