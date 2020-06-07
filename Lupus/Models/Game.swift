@@ -14,5 +14,6 @@ extension Models {
     static let collectionName: String = "games"
     let roomCode: String
     var players: [String]
+    var roleAssignment: [String: Models.Role]
   }
 }
