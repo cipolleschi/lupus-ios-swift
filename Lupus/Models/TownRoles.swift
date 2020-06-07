@@ -134,4 +134,15 @@ extension Models {
       """
     }
   }
+
+  struct Villager: Role, Vampirable {
+    var kind: Models.RoleKind { return .villager }
+    var aura: Models.Aura { return self.isMinorVampire ? .evil : .good }
+    var isMinorVampire: Bool = false
+    var powerDescription: String {
+      return """
+      A commoner of the village, with no special powers.
+      """
+    }
+  }
 }

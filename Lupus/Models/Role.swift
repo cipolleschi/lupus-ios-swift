@@ -51,6 +51,23 @@ extension Models {
     case progeny
     case hermit
     case merchant
+    case villager
+
+    static var villageRoles: [RoleKind] {
+       return [
+        .mayor,
+        .bartender,
+        .priest,
+        .sinner,
+        .boccaDiRose,
+        .orator,
+        .lawyer,
+        .hero,
+        .progeny,
+        .hermit,
+        .merchant
+      ]
+    }
   }
 }
 
@@ -93,6 +110,8 @@ struct RoleFactory {
       return Models.Hermit()
     case .merchant:
       return Models.Merchant()
+    case .villager:
+      return Models.Villager()
     }
   }
 }
