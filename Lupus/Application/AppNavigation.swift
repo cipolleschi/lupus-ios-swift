@@ -13,6 +13,7 @@ enum Screen: String {
   case createGame
   case joinGame
   case alert
+  case assignments
 }
 
 extension StartMenuNC: RoutableWithConfiguration {
@@ -44,7 +45,10 @@ extension CreateGameVC: RoutableWithConfiguration {
 
   var navigationConfiguration: [NavigationRequest : NavigationInstruction] {
     return  [
-      .hide(Screen.createGame): .pop
+      .hide(Screen.createGame): .pop,
+      .show(Screen.assignments): .push({ context in
+        return AssignmentVC(store: self.store, connected: true)
+      })
     ]
   }
 }

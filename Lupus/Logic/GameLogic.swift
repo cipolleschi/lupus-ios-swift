@@ -34,6 +34,37 @@ enum GameLogic {
     }
   }
 
+  struct StartGame: AppSideEffect {
+    func sideEffect(_ context: SideEffectContext<AppState, AppDependencies>) throws {
+      guard let game = context.getState().currentGame else {
+        let alertContext = SharedLogic.AlertContext(
+          title: "Error",
+          message: "There is no game that can be started",
+          actions: [UIAlertAction(title: "Ok", style: .default, handler: nil)]
+        )
+        try await(context.dispatch(SharedLogic.PresentAlert(alertContext: alertContext)))
+        return
+      }
+
+      do {
+        let roles = try context.dependencies.gameEngine.createRoles(players: game.players.count)
+          .map { Models.Role(kind: $0) }
+        let pairs = zip(game.players, roles)
+        let assignments = [String: Models.Role].init(uniqueKeysWithValues: pairs)
+        try await(context.dispatch(UpdateAssignments(assignments: assignments)))
+        try await(context.dispatch(Show(Screen.assignments, animated: true)))
+      } catch {
+        let alertContext = SharedLogic.AlertContext(
+          title: "Error",
+          message: "Too few player to play",
+          actions: [UIAlertAction(title: "Ok", style: .default, handler: nil)]
+        )
+        try await(context.dispatch(SharedLogic.PresentAlert(alertContext: alertContext)))
+        return
+      }
+    }
+  }
+
   struct RemoveGame: AppSideEffect {
 
     func sideEffect(_ context: AppSideEffectContext) throws {
@@ -86,6 +117,13 @@ enum GameLogic {
     let name: String?
     func updateState(_ state: inout AppState) {
       state.currentPlayerUsername = name
+    }
+  }
+
+  struct UpdateAssignments: AppStateUpdater {
+    let assignments: [String: Models.Role]
+    func updateState(_ state: inout AppState) {
+      state.currentGame?.roleAssignment = assignments
     }
   }
 }

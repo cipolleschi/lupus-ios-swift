@@ -25,4 +25,10 @@ class CreateGameVC: ViewController<CreateGameView> {
   @objc func backButtonTapped(_ control: UIControl) {
 
   }
+
+  override func setupInteraction() {
+    self.rootView.userDidTapStartGameButton = { [weak self] in
+      self?.dispatch(GameLogic.StartGame())
+    }
+  }
 }
