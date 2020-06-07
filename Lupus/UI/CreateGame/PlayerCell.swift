@@ -45,7 +45,7 @@ class PlayerCell: UICollectionViewCell, ModellableView {
   func style() { }
 
   func update(oldModel: VM?) {
-    Style.styleSmallText(self.nameLabel, text: model?.name, centered: false)
+    Style.styleSmallText(self.nameLabel, text: model?.name, alignment: .left)
 
     self.setNeedsLayout()
   }

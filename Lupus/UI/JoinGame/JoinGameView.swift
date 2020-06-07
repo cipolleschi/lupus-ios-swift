@@ -20,6 +20,10 @@ struct JoinGameVM: ViewModelWithState {
   var joinAlpha: CGFloat {
     return game == nil ? 1.0 : 0.0
   }
+
+  var connectedPlayersText: String {
+    return "Connected Players: \(self.game?.players.count ?? 0)"
+  }
 }
 
 class JoinGameView: UIView, ViewControllerModellableView {
@@ -29,6 +33,7 @@ class JoinGameView: UIView, ViewControllerModellableView {
   private var roomCodeText = UITextField()
   private let playerNameLabel = UILabel()
   private let playerNameText = UITextField()
+  private let numberOfConnectedPlayers = UILabel()
   private var joinButton = UIButton()
 
   var userDidTapJoinButton: ((String?, String?) -> ())?
@@ -38,6 +43,7 @@ class JoinGameView: UIView, ViewControllerModellableView {
     self.addSubview(self.roomCodeText)
     self.addSubview(self.playerNameLabel)
     self.addSubview(self.playerNameText)
+    self.addSubview(self.numberOfConnectedPlayers)
     self.addSubview(self.joinButton)
 
     roomCodeText.becomeFirstResponder()
@@ -68,6 +74,7 @@ class JoinGameView: UIView, ViewControllerModellableView {
     }
 
     self.joinButton.alpha = model.joinAlpha
+    Style.styleSmallText(self.numberOfConnectedPlayers, text: model.connectedPlayersText)
   }
 
   override func layoutSubviews() {
@@ -96,8 +103,14 @@ class JoinGameView: UIView, ViewControllerModellableView {
       .marginTop(10)
       .height(40)
 
+    self.numberOfConnectedPlayers.pin
+      .horizontally(20)
+      .below(of: self.playerNameText)
+      .marginTop(10)
+      .height(40)
+
     self.joinButton.pin
-      .below(of: playerNameText)
+      .below(of: numberOfConnectedPlayers)
       .marginTop(10)
       .horizontally(40)
       .height(Style.buttonHeight)

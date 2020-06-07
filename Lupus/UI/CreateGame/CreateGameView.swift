@@ -20,6 +20,14 @@ struct CreateGameVM: ViewModelWithState {
     self.game = game
   }
 
+  var connectedPlayersText: String {
+    return "Connected Players: \(self.game.players.count)"
+  }
+
+  var isStartGameEnabled: Bool {
+    return self.game.players.count > 7
+  }
+
   var roomCode: String {
     return game.roomCode
   }
@@ -28,6 +36,8 @@ struct CreateGameVM: ViewModelWithState {
     let name = self.game.players[indexPath.row]
     return PlayerVM(name: name)
   }
+
+
 }
 
 class CreateGameView: UIView, ViewControllerModellableView {
@@ -35,6 +45,8 @@ class CreateGameView: UIView, ViewControllerModellableView {
 
   private let roomCodeTitleLabel = UILabel()
   private let roomCodeLabel = UILabel()
+  private let numberOfConnectedPlayers = UILabel()
+
   private lazy var playersTable: UICollectionView = {
     let layout = UICollectionViewFlowLayout()
     layout.scrollDirection = .vertical
@@ -54,6 +66,7 @@ class CreateGameView: UIView, ViewControllerModellableView {
   func setup() {
     self.addSubview(self.roomCodeTitleLabel)
     self.addSubview(self.roomCodeLabel)
+    self.addSubview(self.numberOfConnectedPlayers)
     self.addSubview(self.playersTable)
     self.addSubview(self.startGameButton)
 
@@ -76,6 +89,8 @@ class CreateGameView: UIView, ViewControllerModellableView {
       return
     }
     Style.styleBigText(self.roomCodeLabel, text: model.roomCode)
+    Style.styleSmallText(self.numberOfConnectedPlayers, text: model.connectedPlayersText)
+    self.startGameButton.isEnabled = model.isStartGameEnabled
     if self.model?.game.players != oldModel?.game.players {
       self.playersTable.reloadData()
     }
@@ -97,6 +112,12 @@ class CreateGameView: UIView, ViewControllerModellableView {
       .marginTop(10)
       .sizeToFit(.width)
 
+    self.numberOfConnectedPlayers.pin
+      .horizontally(20)
+      .below(of: self.roomCodeLabel)
+      .marginTop(10)
+      .sizeToFit(.width)
+
     self.startGameButton.pin
       .horizontally(40)
       .height(Style.buttonHeight)
@@ -104,7 +125,7 @@ class CreateGameView: UIView, ViewControllerModellableView {
 
     self.playersTable.pin
     .horizontally()
-      .top(to: self.roomCodeLabel.edge.bottom)
+      .top(to: self.numberOfConnectedPlayers.edge.bottom)
     .marginTop(10)
       .bottom(to: self.startGameButton.edge.top)
     .marginBottom(10)
@@ -133,6 +154,6 @@ extension CreateGameView: UICollectionViewDelegateFlowLayout, UICollectionViewDa
     _ collectionView: UICollectionView,
     layout collectionViewLayout: UICollectionViewLayout,
     sizeForItemAt indexPath: IndexPath) -> CGSize {
-    return CGSize(width: collectionView.bounds.width, height: 40)
+    return CGSize(width: collectionView.bounds.width, height: 30)
   }
 }
