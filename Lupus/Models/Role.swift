@@ -25,7 +25,7 @@ extension Models {
     case `guard` = "Guard"
     case healer = "Healer"
     // town
-    case mayor = "Mayo"
+    case mayor = "Mayor"
     case bartender = "Bartender"
     case priest = "Priest"
     case sinner = "Sinner"
